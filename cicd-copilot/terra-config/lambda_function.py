@@ -75,7 +75,7 @@ def call_llm(prompt: str) -> dict:
         text = raw["choices"][0]["message"]["content"]
 
         try:
-            parsed = json.loads(text)
+            return json.loads(text)
         except json.JSONDecodeError:
             match = re.search(r'\{.*\}', text, re.DOTALL)
             if match:
