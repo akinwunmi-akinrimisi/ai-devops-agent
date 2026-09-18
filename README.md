@@ -7,7 +7,7 @@ This repository is my **learning playground and portfolio**, focused on:
 * AI-assisted DevOps workflows
 * Cloud security automation
 * Serverless architectures
-* Infrastructure-as-Code at scale
+* Infrastructure-as-Code at scaleff
 
 ---
 
