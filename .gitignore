@@ -4,3 +4,12 @@ cicd-copilot/.next
 cicd-copilot/node_modules
 cicd-copilot/docker_build.log
 cicd-copilot/terra-config/.terraform*
+.env
+
+# Terraform state and local vars - contain secrets in plaintext
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+.terraform/
+crash.log

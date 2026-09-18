@@ -2,14 +2,14 @@
 
 An **AI-powered Terraform review agent** that automatically reviews Infrastructure-as-Code changes in Pull Requests and decides whether to **APPROVE**, **APPROVE_WITH_CHANGES**, or **REJECT** them — just like a real DevOps reviewer.
 
-This project combines **Terraform, GitHub Actions, Terrascan, Gemini AI, and Serverless AWS** to demonstrate how AI can be embedded directly into modern DevOps workflows.
+This project combines **Terraform, GitHub Actions, Terrascan, OpenRouter AI, and Serverless AWS** to demonstrate how AI can be embedded directly into modern DevOps workflows.
 
 ---
 
 ## 🧠 What This Project Does
 
 * Runs **Terrascan** on Terraform code during PRs
-* Sends scan results to an **AI agent (Gemini)**
+* Sends scan results to an **AI agent (via OpenRouter)**
 * Applies **risk-based decision logic**
 * Automatically:
 
@@ -29,7 +29,7 @@ This project combines **Terraform, GitHub Actions, Terrascan, Gemini AI, and Ser
 * **Amazon ECS (Fargate)** → Application runtime
 * **Application Load Balancer (ALB)** → Traffic routing
 * **ACM** → HTTPS certificates
-* **Secrets Manager** → Gemini API key storage
+* **Secrets Manager** → OpenRouter API key storage
 * **S3 Backend** → Terraform state storage
 * **GitHub Actions** → CI/CD pipeline
 
@@ -92,7 +92,7 @@ This ensures **security without blocking velocity**.
 * GitHub account
 * Terrascan installed
   👉 [https://runterrascan.io/docs/getting-started/](https://runterrascan.io/docs/getting-started/)
-* Gemini API key (Google AI Studio)
+* OpenRouter API key ([openrouter.ai/keys](https://openrouter.ai/keys))
 
 ---
 
@@ -118,8 +118,8 @@ terraform init
 ### 3️⃣ Plan & Apply Infrastructure
 
 ```bash
-terraform plan -var="gemini_api_key=YOUR_KEY"
-terraform apply -var="gemini_api_key=YOUR_KEY" --auto-approve
+terraform plan -var="openrouter_api_key=YOUR_KEY"
+terraform apply -var="openrouter_api_key=YOUR_KEY" --auto-approve
 ```
 
 Once completed, the **Mario game** will be live on the ALB DNS.
@@ -160,7 +160,7 @@ Once completed, the **Mario game** will be live on the ALB DNS.
 ## 🧹 Cleanup
 
 ```bash
-terraform destroy -auto-approve -var="gemini_api_key=YOUR_KEY"
+terraform destroy -auto-approve -var="openrouter_api_key=YOUR_KEY"
 aws s3 rm s3://pravesh-terraform-mario-state --recursive
 aws s3 rb s3://pravesh-terraform-mario-state
 ```

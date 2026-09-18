@@ -3,25 +3,26 @@ import urllib.request
 import urllib.error
 import boto3
 
-GEMINI_MODEL = "gemini-2.5-flash"
-SECRET_NAME = "gemini-api-key-5"
+MODEL = "google/gemini-2.5-flash"
+OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
+SECRET_NAME = "openrouter-api-key-review"
 REGION_NAME = "us-east-1"
 
-GEMINI_API_KEY = None
+OPENROUTER_API_KEY = None
 
 
-def get_gemini_api_key():
-    global GEMINI_API_KEY
+def get_api_key():
+    global OPENROUTER_API_KEY
 
-    if GEMINI_API_KEY:
-        return GEMINI_API_KEY
+    if OPENROUTER_API_KEY:
+        return OPENROUTER_API_KEY
 
     client = boto3.client("secretsmanager", region_name=REGION_NAME)
     response = client.get_secret_value(SecretId=SECRET_NAME)
     secret = json.loads(response["SecretString"])
 
-    GEMINI_API_KEY = secret["GEMINI_API_KEY"]
-    return GEMINI_API_KEY
+    OPENROUTER_API_KEY = secret["OPENROUTER_API_KEY"]
+    return OPENROUTER_API_KEY
 
 
 def extract_relevant_findings(terrascan_results: dict) -> dict:
@@ -89,44 +90,43 @@ Findings:
 """
 
 
-def call_gemini(prompt: str) -> str:
-    api_key = get_gemini_api_key()
-
-    url = (
-        f"https://generativelanguage.googleapis.com/v1beta/models/"
-        f"{GEMINI_MODEL}:generateContent?key={api_key}"
-    )
+def call_llm(prompt: str) -> str:
+    api_key = get_api_key()
 
     payload = {
-        "contents": [
-            {
-                "parts": [{"text": prompt}]
-            }
+        "model": MODEL,
+        "messages": [
+            {"role": "user", "content": prompt}
         ]
     }
 
     req = urllib.request.Request(
-        url,
+        OPENROUTER_URL,
         data=json.dumps(payload).encode("utf-8"),
-        headers={"Content-Type": "application/json"},
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {api_key}",
+            "HTTP-Referer": "https://github.com/Pravesh-Sudha/ai-devops-agent",
+            "X-Title": "Terraform AI Review Agent"
+        },
         method="POST"
     )
 
     try:
         with urllib.request.urlopen(req, timeout=30) as response:
             result = json.loads(response.read())
-            return result["candidates"][0]["content"]["parts"][0]["text"]
+            return result["choices"][0]["message"]["content"]
 
     except urllib.error.HTTPError as e:
-        return f"Gemini API HTTP error: {e.read().decode()}"
+        return f"OpenRouter API HTTP error: {e.read().decode()}"
 
     except Exception as e:
-        return f"Unexpected error calling Gemini: {str(e)}"
+        return f"Unexpected error calling OpenRouter: {str(e)}"
 
 
 def extract_verdict(review_text: str) -> str:
     """
-    Extracts verdict from Gemini response.
+    Extracts verdict from the LLM response.
     Defaults to REJECT if unclear (fail-safe).
     """
     text = review_text.upper()
@@ -155,7 +155,7 @@ def lambda_handler(event, context):
         findings = extract_relevant_findings(results)
         prompt = build_prompt(findings)
 
-        ai_review = call_gemini(prompt)
+        ai_review = call_llm(prompt)
         verdict = extract_verdict(ai_review)
 
         return {

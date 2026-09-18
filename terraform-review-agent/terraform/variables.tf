@@ -4,8 +4,8 @@ variable "project_name" {
   description = "Name of the project"
 }
 
-variable "gemini_api_key" {
-  description = "Gemini API Key"
+variable "openrouter_api_key" {
+  description = "OpenRouter API Key"
   type        = string
   sensitive   = true
 }

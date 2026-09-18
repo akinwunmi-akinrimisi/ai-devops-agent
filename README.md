@@ -28,7 +28,7 @@ This repo explores:
 
 ### 🤖 AI Terraform Review Agent
 
-> Automated Terraform PR reviewer using Gemini + Terrascan
+> Automated Terraform PR reviewer using OpenRouter (Gemini 2.5 Flash) + Terrascan
 
 * Risk-based infra decisions
 * GitHub Actions CI/CD
@@ -55,7 +55,7 @@ Planned areas:
 * **AWS (Lambda, ECS, ALB, IAM, VPC)**
 * **GitHub Actions**
 * **Terrascan**
-* **Gemini / LLMs**
+* **OpenRouter / LLMs**
 * **Docker**
 * **Serverless architectures**
 

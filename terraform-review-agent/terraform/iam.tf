@@ -33,7 +33,7 @@ resource "aws_iam_role" "lambda_role" {
 }
 
 resource "aws_iam_policy" "lambda_secrets_policy" {
-  name = "lambda-gemini-secrets-policy"
+  name = "lambda-openrouter-secrets-policy-review"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -41,7 +41,7 @@ resource "aws_iam_policy" "lambda_secrets_policy" {
       {
         Effect   = "Allow"
         Action   = ["secretsmanager:GetSecretValue"]
-        Resource = aws_secretsmanager_secret.gemini_api_key.arn
+        Resource = aws_secretsmanager_secret.openrouter_api_key.arn
       }
     ]
   })
