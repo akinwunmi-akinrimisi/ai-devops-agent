@@ -1,4 +1,4 @@
-# 🧠 AI DevOps Projects
+# 🧠 AI DevOps Projects fff
 
 A curated collection of **real-world AI + DevOps projects** where automation, cloud infrastructure, and intelligent agents come together.
 
