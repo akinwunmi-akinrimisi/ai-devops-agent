@@ -4,6 +4,7 @@ pipeline {
     environment {
         FAILED_STAGE = "unknown"
         LOG_FILE = "pipeline_error.log"
+        AWS_DEFAULT_REGION = "us-east-1"
     }
 
     stages {
