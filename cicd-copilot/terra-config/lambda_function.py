@@ -5,15 +5,16 @@ import urllib.error
 import re
 
 
-GEMINI_MODEL = "gemini-2.5-flash"
-SECRET_NAME = "gemini-api-key"
+MODEL = "google/gemini-2.5-flash"
+OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
+SECRET_NAME = "openrouter-api-key-copilot"
 REGION_NAME = "us-east-1"
 
 secrets_client = boto3.client("secretsmanager", region_name=REGION_NAME)
 
-def get_gemini_api_key():
+def get_api_key():
     secret = secrets_client.get_secret_value(SecretId=SECRET_NAME)
-    return json.loads(secret["SecretString"])["GEMINI_API_KEY"]
+    return json.loads(secret["SecretString"])["OPENROUTER_API_KEY"]
 
 
 def build_prompt(stage, logs):
@@ -47,30 +48,31 @@ Logs:
 """
 
 
-def call_gemini(prompt: str) -> dict:
-    api_key = get_gemini_api_key()
-
-    url = (
-        f"https://generativelanguage.googleapis.com/v1beta/models/"
-        f"{GEMINI_MODEL}:generateContent?key={api_key}"
-    )
+def call_llm(prompt: str) -> dict:
+    api_key = get_api_key()
 
     payload = {
-        "contents": [
-            {"parts": [{"text": prompt}]}
+        "model": MODEL,
+        "messages": [
+            {"role": "user", "content": prompt}
         ]
     }
 
     req = urllib.request.Request(
-        url,
+        OPENROUTER_URL,
         data=json.dumps(payload).encode(),
-        headers={"Content-Type": "application/json"},
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {api_key}",
+            "HTTP-Referer": "https://github.com/Pravesh-Sudha/ai-devops-agent",
+            "X-Title": "CI/CD AI Copilot"
+        },
         method="POST"
     )
 
     with urllib.request.urlopen(req, timeout=30) as resp:
         raw = json.loads(resp.read())
-        text = raw["candidates"][0]["content"]["parts"][0]["text"]
+        text = raw["choices"][0]["message"]["content"]
 
         try:
             parsed = json.loads(text)
@@ -100,7 +102,7 @@ def lambda_handler(event, context):
         logs = event["logs"][:6000]
 
         prompt = build_prompt(stage, logs)
-        ai_analysis = call_gemini(prompt)
+        ai_analysis = call_llm(prompt)
 
         response = {
             "status": "FAILURE",
